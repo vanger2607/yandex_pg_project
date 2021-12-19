@@ -3,6 +3,7 @@ import button
 
 pygame.init()
 
+a = 0
 width = 600
 height = 480
 size = (width, height)
