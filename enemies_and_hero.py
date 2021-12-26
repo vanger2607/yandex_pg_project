@@ -78,23 +78,23 @@ class Hero(pg.sprite.Sprite):
 
         if args[0] == 'right' and self.rect.x + self.speed < width - list(self.rect)[2]:
             self.rect.x += self.speed
-            block_hit_list = pygame.sprite.spritecollide(self, walls, False)
+            block_hit_list = pg.sprite.spritecollide(self, walls, False)
             for block in block_hit_list:
                 self.rect.right = block.rect.left
         if args[0] == 'left' and self.rect.x - self.speed > 0:
             self.rect.x -= self.speed
-            block_hit_list = pygame.sprite.spritecollide(self, walls, False)
+            block_hit_list = pg.sprite.spritecollide(self, walls, False)
             for block in block_hit_list:
                 self.rect.left = block.rect.right
         if args[0] == 'up' and self.rect.y - self.speed > 0:
             self.rect.y -= self.speed
-            block_hit_list = pygame.sprite.spritecollide(self, walls, False)
+            block_hit_list = pg.sprite.spritecollide(self, walls, False)
             for block in block_hit_list:
                 self.rect.top = block.rect.bottom
 
         if args[0] == 'down' and self.rect.y + self.speed < height - list(self.rect)[3]:
             self.rect.y += self.speed
-            block_hit_list = pygame.sprite.spritecollide(self, walls, False)
+            block_hit_list = pg.sprite.spritecollide(self, walls, False)
             for block in block_hit_list:
                 self.rect.bottom = block.rect.top
 
