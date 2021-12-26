@@ -1,19 +1,19 @@
 import pygame as pg
+import time as t
 
 move_to = 'right'
 
-import pygame
-import sys
-
+WEAPONS = ['first_gun', 'second_gun']
+weapon = WEAPONS[0]
 pg.init()
-now = 5
-all_time = 4
+all_time = t.time()
+now = t.time()
 
 
 class Bullet(pg.sprite.Sprite):
     # В разработке
-    def __init__(self, img, damage, x, y):
-        super().__init__()
+    def __init__(self, img, speed, damage, x, y):
+        super().__init__(all_sprites)
 
         self.image = pg.image.load(img)
         self.rect = self.image.get_rect()
@@ -21,25 +21,31 @@ class Bullet(pg.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.where = move_to
+        self.speed = speed
 
     def update(self, *args):
         if self.where == 'left':
-            self.rect.x -= 1
+            self.rect.x -= self.speed
         elif self.where == 'right':
-            self.rect.x += 1
-
+            self.rect.x += self.speed
+        elif self.where == 'down':
+            self.rect.y += self.speed
+        elif self.where == 'up':
+            self.rect.y -= self.speed
         if self.rect.x <= 10 or self.rect.x >= width - 10:
             self.kill()
 
 
+first_weapon_dmg = 1
 bullets = pg.sprite.Group()
+enemy_bullets = pg.sprite.Group()
 
 
 class Hero(pg.sprite.Sprite):
     """класс для главного героя нашей игры"""
 
     def __init__(self, img, speed, hp, attack, x, y):
-        super().__init__()
+        super().__init__(all_sprites)
         self.image = pg.image.load(img)
         self.speed = speed
         self.hp = hp
@@ -49,11 +55,22 @@ class Hero(pg.sprite.Sprite):
         self.rect.y = y
         self.rect = self.image.get_rect().move(
             tile_width * x, tile_height * y)
+        all_sprites.add(self)
 
-    def attacking(self, weapon):
+    def attacking(self, weapon, ):
         # В разработке
         global bullets
-        bullet = Bullet('bullet.png', 1, self.rect.centerx, self.rect.top)
+        where = self.rect.x
+        up_down = self.rect.y
+        if move_to == 'left':
+            where = self.rect.left
+        elif move_to == 'right':
+            where = self.rect.right
+        elif move_to == 'up':
+            where, up_down = self.rect.midtop
+        elif move_to == 'down':
+            where, up_down = self.rect.midbottom
+        bullet = Bullet('bullet.png', 5, first_weapon_dmg, where, up_down)
         bullets.add(bullet)
         bullet.update(move_to)
 
@@ -86,7 +103,7 @@ class Enemy(pg.sprite.Sprite):
     """общий класс для всех врагов"""
 
     def __init__(self, img, speed, hp, attack, x, y):
-        super().__init__()
+        super().__init__(all_sprites)
         self.image = pg.image.load(img)
         self.speed = speed
         self.hp = hp
@@ -94,6 +111,7 @@ class Enemy(pg.sprite.Sprite):
         self.rect = self.image.get_rect()
         self.rect.x = x
         self.rect.y = y
+        self.where = ''
 
     def attacking(self):
         pass
@@ -103,12 +121,16 @@ class Enemy(pg.sprite.Sprite):
         if self.hp <= 0:
             self.kill()
         if args[0][0] > self.rect.x:
+            self.where = 'right'
             self.rect.x += self.speed
         if args[0][0] < self.rect.x:
+            self.where = 'left'
             self.rect.x -= self.speed
         if args[0][1] > self.rect.y:
             self.rect.y += self.speed
+            self.where = 'down'
         if args[0][1] < self.rect.y:
+            self.where = 'up'
             self.rect.y -= self.speed
 
     def dead(self, damage):
@@ -122,11 +144,53 @@ def load_level(filename):
         return list(map(lambda x: x.ljust(max_width, '.'), level_map))
 
 
+class FireEnemy(Enemy):
+    """класс для стреляющего врага, который выпускает пули в одном направлении в одном направление"""
+
+    def __init__(self, img, speed, hp, damage, x, y):
+        super().__init__(img, speed, hp, damage, x, y)
+        self.bullet_len = 40
+
+    def attacking(self, hero_rect):
+        if self.bullet_len >= abs(hero_rect.x - self.rect.x):
+            there = self.rect.x
+            up_down = self.rect.y
+            if self.where == 'left':
+                there = self.rect.left
+            elif self.where == 'right':
+                there = self.rect.right
+            elif self.where == 'up':
+                there, up_down = self.rect.midtop
+            elif self.where == 'down':
+                there, up_dow = self.rect.midbottom
+            enemy_bullet = Bullet('enemy_bullets.png', 5, first_weapon_dmg, there, up_down)
+            enemy_bullets.add(enemy_bullet)
+            enemy_bullet.update(self.where)
+
+    def update(self, *args):
+        if self.hp <= 0:
+            self.kill()
+        if args[0][0] > self.rect.x:
+            self.where = 'right'
+            self.rect.x += self.speed
+        if args[0][0] < self.rect.x:
+            self.where = 'left'
+            self.rect.x -= self.speed
+        if args[0][1] > self.rect.y:
+            self.rect.y += self.speed
+            self.where = 'down'
+        if args[0][1] < self.rect.y:
+            self.where = 'up'
+            self.rect.y -= self.speed
+
+            self.attacking(args[0])
+
+
 tile_images = {
     'wall': pg.image.load('meteor-wall.png'),
     'empty': pg.image.load('grass.png')
 }
-
+size = width, height = 1300, 750
 tile_width = tile_height = 15
 tiles_group = pg.sprite.Group()
 walls = pg.sprite.Group()
@@ -136,7 +200,7 @@ player_group = pg.sprite.Group()
 
 class Tile(pg.sprite.Sprite):
     def __init__(self, tile_type, pos_x, pos_y):
-        super().__init__(tiles_group, all_sprites)
+        super().__init__(tiles_group)
         self.image = tile_images[tile_type]
         self.type = tile_type
 
@@ -145,6 +209,7 @@ class Tile(pg.sprite.Sprite):
 
         if self.type == 'wall':
             walls.add(self)
+            all_sprites.add(self)
 
 
 def generate_level(level):
@@ -158,12 +223,34 @@ def generate_level(level):
             elif level[y][x] == '@':
                 Tile('empty', x, y)
                 new_player = Hero('hero.png', 15, 100, 5, x, y)
+                heroes.add(new_player)
             elif level[y][x] == 'e':
                 enemies.add(Enemy('testenemy.png', 5, 20, 1, x * tile_width, y * tile_height))
+            elif level[y][x] == 'F':
+                fire_enemies.add(FireEnemy('testenemy.png', 5, 20, 1, x * tile_width, y * tile_height))
     return new_player, x, y
 
 
-FPS = 50
+class Camera:
+    # зададим начальный сдвиг камеры
+    def __init__(self):
+        self.dx = 0
+        self.dy = 0
+
+    # сдвинуть объект obj на смещение камеры
+    def apply(self, obj):
+        obj.rect.x += self.dx
+        obj.rect.y += self.dy
+
+    # позиционировать камеру на объекте target
+    def update(self, target):
+        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
+        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
+
+
+camera = Camera()
+
+FPS = 30
 clock = pg.time.Clock()
 
 
@@ -173,26 +260,21 @@ def terminate():
 
 
 def start_screen():
-    fon = pg.transform.scale(pg.image.load('fon.jpg'), (width, height))
+    fon = pg.transform.scale(pg.image.load('fon.png'), (width, height))
     screen.blit(fon, (0, 0))
-    font = pg.font.Font(None, 30)
-    text_coord = 50
 
 
 enemies = pg.sprite.Group()
-size = width, height = 800, 600
+fire_enemies = pg.sprite.Group()
 pg.display.set_caption('way to freedom')
 screen = pg.display.set_mode(size)
 running = True
 position = [300, 500]
+heroes = pg.sprite.Group()
 
-clock = pg.time.Clock()
-bullet = Bullet('bullet.png', 5, 30, 40)
 reload_time = True
 f = pg.font.Font(None, 100)
 while True:
-    start_screen()
-    pg.display.flip()
     clock.tick(FPS)
     for event in pg.event.get():
         if event.type == pg.QUIT:
@@ -201,15 +283,11 @@ while True:
             player, level_x, level_y = generate_level(load_level('map.txt'))
             hero = player
             while running:
+                screen.blit(pg.image.load('fon.png'), (0, 0))
+                clock.tick(FPS)
                 for event in pg.event.get():
                     if event.type == pg.QUIT:
                         running = False
-
-                start_screen()
-                walls.update()
-                walls.draw(screen)
-                bullets.update()
-                bullets.draw(screen)
                 for event in pg.event.get():
                     if event.type == pg.QUIT:
                         running = False
@@ -221,15 +299,17 @@ while True:
                     hero.update('right')
                     move_to = 'right'
                 if keys[pg.K_UP]:
+                    move_to = 'up'
                     hero.update('up')
                 if keys[pg.K_DOWN]:
+                    move_to = 'down'
                     hero.update('down')
 
                 if pg.sprite.spritecollide(hero, enemies, False):
                     hero.hp -= 1
 
                 for hit in pg.sprite.groupcollide(enemies, bullets, False, True):
-                    hit.dead(5)
+                    hit.dead(first_weapon_dmg)
                 if hero.hp <= 0:
                     w = f.render('GAME OVER', True,
                                  pg.Color('red'))
@@ -237,7 +317,7 @@ while True:
                     pg.display.update()
                     pg.time.delay(1000)
                     running = False
-                if len(enemies) == 0:
+                if len(enemies) == 0 and len(fire_enemies) == 0:
                     w = f.render('YOU WON', True,
                                  pg.Color('green'))
                     screen.blit(w, (100, 100))
@@ -246,19 +326,29 @@ while True:
                     running = False
                 enemies.update(hero.rect)
 
-                screen.blit(hero.image, hero.rect)
                 count_hp = f.render(str(hero.hp), True, pg.Color('red'))
                 screen.blit(count_hp, (0, 0))
-                enemies.draw(screen)
-                if now - all_time <= 3:
-                    now += 0.1
+
+                if now - all_time < 1:
+                    now = t.time()
+
                     reload_time = True
 
-                elif now - all_time > 3:
+                elif now - all_time > 1:
                     reload_time = False
-                    all_time += 0.25
 
                 if keys[pg.K_SPACE] and not reload_time:
-                    # В разработке
                     hero.attacking('cubes')
+                    all_time = t.time()
+                    now = t.time()
+                bullets.update(move_to)
+                camera.update(hero)
+                enemy_bullets.update()
+                enemy_bullets.draw(screen)
+                fire_enemies.update(hero.rect)
+                for hit in pg.sprite.groupcollide(heroes, enemy_bullets, False, True):
+                    hit.hp -= 1
+                for sprite in all_sprites:
+                    camera.apply(sprite)
+                all_sprites.draw(screen)
                 pg.display.update()
