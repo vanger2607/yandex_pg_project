@@ -1,5 +1,6 @@
 import pygame as pg
 import time as t
+import sys
 
 move_to = 'right'
 
