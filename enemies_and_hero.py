@@ -411,6 +411,8 @@ while running_1:
                             hit.dead(first_weapon_dmg)
                         for hit in pg.sprite.groupcollide(fire_enemies, bullets, False, True):
                             hit.dead(first_weapon_dmg)
+                        for hit in pg.sprite.groupcollide(Fire_enemies, bullets, False, True):
+                            hit.dead(first_weapon_dmg)
                         if hero.hp <= 0:
                             w = f.render('GAME OVER', True,
                                          pg.Color('red'))
@@ -418,7 +420,7 @@ while running_1:
                             pg.display.update()
                             pg.time.delay(1000)
                             running = False
-                        if len(enemies) == 0 and len(fire_enemies) == 0:
+                        if len(enemies) == 0 and len(fire_enemies) == 0 and len(Fire_enemies) == 0:
                             w = f.render('YOU WON', True,
                                          pg.Color('green'))
                             screen.blit(w, (100, 100))
