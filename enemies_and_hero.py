@@ -144,12 +144,12 @@ class Enemy(pg.sprite.Sprite):
             self.where = 'right'
             self.rect.x += self.speed
         if args[0][0] < self.rect.x:
-            if args[0][0] % self.rect.x != 0:
+            if self.rect.x != 0 and args[0][0] % self.rect.x != 0:
                 self.rect.x -= 1
             self.where = 'left'
             self.rect.x -= self.speed
         if args[0][1] > self.rect.y:
-            if args[0][1] % self.rect.y != 0:
+            if self.rect.y != 0 and args[0][1] % self.rect.y != 0:
                 self.rect.y -= 1
             self.rect.y += self.speed
             self.where = 'down'
