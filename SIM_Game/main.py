@@ -31,7 +31,7 @@ switch_Settings = pygame_gui.elements.UIButton(
     manager=manager)
 difficulty = pygame_gui.elements.ui_drop_down_menu.UIDropDownMenu(
     options_list=['Easy', 'Medium', 'Hard', 'Very Hard'], starting_option='Easy',
-    relative_rect=pygame.Rect((120, 320), (150, 100)),
+    relative_rect=pygame.Rect((120, 310), (150, 100)),
     manager=manager)
 running = True
 screen.blit(img, (0, 0))
@@ -96,21 +96,21 @@ while running:
                         relative_rect=pygame.Rect((490, 10), (110, 100)),
                         text='5',
                         manager=manager)
-                # noinspection PyUnboundLocalVariable
-                if event.ui_element == first_level:
-                    print('Please waiting, 1 level are loading')
-                # noinspection PyUnboundLocalVariable
-                if event.ui_element == second_level:
-                    print('Please waiting, 2 level are loading')
-                # noinspection PyUnboundLocalVariable
-                if event.ui_element == third_level:
-                    print('Please waiting, 3 level are loading')
-                # noinspection PyUnboundLocalVariable
-                if event.ui_element == fourth_level:
-                    print('Please waiting, 4 level are loading')
-                # noinspection PyUnboundLocalVariable
-                if event.ui_element == fifth_level:
-                    print('Please waiting, 5 level are loading')
+                    # noinspection PyUnboundLocalVariable
+                    if event.ui_element == first_level:
+                        print('Please waiting, 1 level are loading')
+                    # noinspection PyUnboundLocalVariable
+                    if event.ui_element == second_level:
+                        print('Please waiting, 2 level are loading')
+                    # noinspection PyUnboundLocalVariable
+                    if event.ui_element == third_level:
+                        print('Please waiting, 3 level are loading')
+                    # noinspection PyUnboundLocalVariable
+                    if event.ui_element == fourth_level:
+                        print('Please waiting, 4 level are loading')
+                    # noinspection PyUnboundLocalVariable
+                    if event.ui_element == fifth_level:
+                        print('Please waiting, 5 level are loading')
                 if event.ui_element == switch_exit:
                     print('EXIT')
                     information_dialog = pygame_gui.windows.UIConfirmationDialog(
@@ -135,7 +135,7 @@ while running:
                     volume: UIDropDownMenu = pygame_gui.elements.ui_drop_down_menu.UIDropDownMenu(
                         options_list=['0', '0.1', '0.2', '0.3', '0.4', '0.5', '0.6', '0.7', '0.8', '0.9', '1'],
                         starting_option='Change volume',
-                        relative_rect=pygame.Rect((300, 200), (250, 100)),
+                        relative_rect=pygame.Rect((200, 150), (250, 100)),
                         manager=manager)
         manager.process_events(event)
         manager.update(time_delta)
