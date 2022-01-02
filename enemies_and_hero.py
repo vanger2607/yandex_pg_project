@@ -13,7 +13,7 @@ def terminate():
 
 
 def start_screen():
-    fon = pg.transform.scale(pg.image.load('fon.png'), (width, height))
+    fon = pg.transform.scale(img, (width, height))
     screen.blit(fon, (0, 0))
 
 
@@ -25,6 +25,18 @@ all_time = t.time()
 now = t.time()
 my_event = pg.USEREVENT + 1
 fire_to_all = pg.USEREVENT + 2
+walls_for_battle = pg.sprite.Group()
+
+
+class Portal(pg.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__(all_sprites_for_save)
+        self.image = pg.image.load('portal.png')
+        self.rect = self.image.get_rect()
+        print(self.rect)
+        self.rect.x = x
+        self.rect.y = y
+        self.type = 'p'
 
 
 class Bullet(pg.sprite.Sprite):
@@ -65,7 +77,7 @@ class Hero(pg.sprite.Sprite):
     """класс для главного героя нашей игры"""
 
     def __init__(self, img, speed, hp, attack, x, y):
-        super().__init__(all_sprites)
+        super().__init__(all_sprites, all_sprites_for_save)
         self.image = pg.image.load(img)
         self.speed = speed
         self.hp = hp
@@ -74,7 +86,8 @@ class Hero(pg.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.rect = self.image.get_rect().move(
-            tile_width * x, tile_height * y)
+            1 * x, 1 * y)
+        self.type = '@'
         all_sprites.add(self)
 
     def attacking(self, weapon, ):
@@ -123,7 +136,7 @@ class Enemy(pg.sprite.Sprite):
     """общий класс для всех врагов"""
 
     def __init__(self, img, speed, hp, attack, x, y):
-        super().__init__(all_sprites)
+        super().__init__(all_sprites, all_sprites_for_save)
         self.image = pg.image.load(img)
         self.speed = speed
         self.hp = hp
@@ -132,6 +145,8 @@ class Enemy(pg.sprite.Sprite):
         self.rect.x = x
         self.rect.y = y
         self.where = ''
+        self.can_see_y = 423
+        self.type = 'e'
 
     def attacking(self):
         pass
@@ -140,20 +155,20 @@ class Enemy(pg.sprite.Sprite):
 
         if self.hp <= 0:
             self.kill()
-        if args[0][0] > self.rect.x:
+        if args[0][0] > self.rect.x and args[0][1] >= self.can_see_y:
             self.where = 'right'
             self.rect.x += self.speed
-        if args[0][0] < self.rect.x:
+        if args[0][0] < self.rect.x and args[0][1] >= self.can_see_y:
             if self.rect.x != 0 and args[0][0] % self.rect.x != 0:
                 self.rect.x -= 1
             self.where = 'left'
             self.rect.x -= self.speed
-        if args[0][1] > self.rect.y:
+        if args[0][1] > self.rect.y and args[0][1] >= self.can_see_y:
             if self.rect.y != 0 and args[0][1] % self.rect.y != 0:
                 self.rect.y -= 1
             self.rect.y += self.speed
             self.where = 'down'
-        if args[0][1] < self.rect.y:
+        if args[0][1] < self.rect.y and args[0][1] >= self.can_see_y:
             self.where = 'up'
             self.rect.y -= self.speed
 
@@ -182,9 +197,11 @@ class FireEnemy(Enemy):
     def __init__(self, img, speed, hp, damage, x, y):
         super().__init__(img, speed, hp, damage, x, y)
         self.bullet_len = 175
+        self.type = 'f'
 
     def attacking(self, hero_rect):
-        if self.bullet_len >= abs(hero_rect.x - self.rect.x) and (self.bullet_len >= abs(hero_rect.y - self.rect.y)):
+        if self.bullet_len >= abs(hero_rect.x - self.rect.x) and (self.bullet_len >= abs(hero_rect.y - self.rect.y)) \
+                and hero_rect[1] >= self.can_see_y:
             there = self.rect.x
             up_down = self.rect.y
             if self.where == 'left':
@@ -205,20 +222,20 @@ class FireEnemy(Enemy):
     def update(self, *args):
         if self.hp <= 0:
             self.kill()
-        if args[0][0] > self.rect.x:
+        if args[0][0] > self.rect.x and args[0][1] >= self.can_see_y:
             self.where = 'right'
             self.rect.x += self.speed
-        elif args[0][0] < self.rect.x:
+        elif args[0][0] < self.rect.x and args[0][1] >= self.can_see_y:
             if self.rect.x != 0 and args[0][0] % self.rect.x != 0:
                 self.rect.x -= 1
             self.where = 'left'
             self.rect.x -= self.speed
-        elif args[0][1] > self.rect.y:
+        elif args[0][1] > self.rect.y and args[0][1] >= self.can_see_y:
             if self.rect.y !=0 and args[0][0] % self.rect.y != 0:
                 self.rect.y -= 1
             self.rect.y += self.speed
             self.where = 'down'
-        elif args[0][1] < self.rect.y:
+        elif args[0][1] < self.rect.y and args[0][1] >= self.can_see_y:
             self.where = 'up'
             self.rect.y -= self.speed
 
@@ -226,25 +243,31 @@ class FireEnemy(Enemy):
 class FiretoallEnemy(FireEnemy):
     """враг стреляющей во все стороны"""
 
+    def __init__(self, img, speed, hp, damage, x, y):
+        super().__init__(img, speed, hp, damage, x, y)
+        self.type = 'F'
+
     def attacking(self, hero_rect):
-        enemy_bullet = Bullet('enemy_bullets.png', 10, first_weapon_dmg, self.rect.left, self.rect.y, 'left')
-        enemy_bullets.add(enemy_bullet)
-        enemy_bullet = Bullet('enemy_bullets.png', 10, first_weapon_dmg, self.rect.right, self.rect.y, 'right')
-        enemy_bullets.add(enemy_bullet)
-        enemy_bullet = Bullet('enemy_bullets.png', 10, first_weapon_dmg,
-                              self.rect.midtop[0], self.rect.midtop[1], 'up')
-        enemy_bullets.add(enemy_bullet)
-        enemy_bullet = Bullet('enemy_bullets.png', 10, first_weapon_dmg,
-                              self.rect.midbottom[0], self.rect.midbottom[1], 'down')
-        enemy_bullets.add(enemy_bullet)
+        if hero_rect[1] >= self.can_see_y:
+            enemy_bullet = Bullet('enemy_bullets.png', 10, first_weapon_dmg, self.rect.left, self.rect.y, 'left')
+            enemy_bullets.add(enemy_bullet)
+            enemy_bullet = Bullet('enemy_bullets.png', 10, first_weapon_dmg, self.rect.right, self.rect.y, 'right')
+            enemy_bullets.add(enemy_bullet)
+            enemy_bullet = Bullet('enemy_bullets.png', 10, first_weapon_dmg,
+                                  self.rect.midtop[0], self.rect.midtop[1], 'up')
+            enemy_bullets.add(enemy_bullet)
+            enemy_bullet = Bullet('enemy_bullets.png', 10, first_weapon_dmg,
+                                  self.rect.midbottom[0], self.rect.midbottom[1], 'down')
+            enemy_bullets.add(enemy_bullet)
 
 
 tile_images = {
-    'wall': pg.image.load('meteor-wall.png'),
+    'wall': pg.image.load('wall (3).png'),
     'empty': pg.image.load('grass.png')
 }
 size = width, height = 1300, 750
-tile_width = tile_height = 15
+total_level_width = 30 * 40
+total_level_height = 21 * 40
 tiles_group = pg.sprite.Group()
 walls = pg.sprite.Group()
 all_sprites = pg.sprite.Group()
@@ -258,21 +281,27 @@ running = True
 position = [300, 500]
 heroes = pg.sprite.Group()
 empty = []
+all_sprites_for_save = pg.sprite.Group()
 
 
 class Tile(pg.sprite.Sprite):
-    def __init__(self, tile_type, pos_x, pos_y):
-        super().__init__(tiles_group)
+    def __init__(self, tile_type, pos_x, pos_y, flag):
+        super().__init__(all_sprites_for_save)
         self.image = tile_images[tile_type]
-        self.type = tile_type
-
+        colorkey = self.image.get_at((0, 0))
+        self.image.set_colorkey(colorkey)
+        self.type1 = tile_type
         self.rect = self.image.get_rect().move(
-            tile_width * pos_x, tile_height * pos_y)
+            10 * pos_x, 10 * pos_y)
 
-        if self.type == 'wall':
+        if self.type1 == 'wall' and flag:
             walls.add(self)
+            print(self.rect)
+            self.type = '#'
             all_sprites.add(self)
-        if self.type == 'empty':
+
+        if self.type1 == 'empty':
+            self.type = '.'
             empty.append((self.rect.x, self.rect.y))
 
 
@@ -281,51 +310,55 @@ def generate_level(level):
     for y in range(len(level)):
         for x in range(len(level[y])):
             if level[y][x] == '.':
-                Tile('empty', x, y)
+                Tile('empty', x, y, False)
             elif level[y][x] == '#':
-                Tile('wall', x, y)
+                Tile('wall', x, y, True)
             elif level[y][x] == '@':
-                Tile('empty', x, y)
-                new_player = Hero('hero.png', 15, 100, 5, x, y)
+                Tile('empty', x, y, False)
+                new_player = Hero('hero_left_step1 (2).png', 10, 100, 5, x * 10, y * 10)
                 heroes.add(new_player)
             elif level[y][x] == 'e':
-                enemies.add(Enemy('testenemy.png', 5, 20, 1, x * tile_width, y * tile_height))
+                enemies.add(Enemy('testenemy.png', 5, 20, 1, x * 10, y * 10))
             elif level[y][x] == 'F':
-                Fire_enemies.add(FiretoallEnemy('testenemy.png', 5, 20, 1, x * tile_width, y * tile_height))
+                Fire_enemies.add(FiretoallEnemy('testenemy.png', 1, 20, 1, x * 10, y * 10))
             elif level[y][x] == 'f':
-                fire_enemies.add(FireEnemy('testenemy.png', 5, 20, 1, x * tile_width, y * tile_height))
+                fire_enemies.add(FireEnemy('testenemy.png', 3, 20, 15, x * 10, y * 10))
     return new_player, x, y
 
 
 class Camera:
-    # зададим начальный сдвиг камеры
-    def __init__(self):
-        self.dx = 0
-        self.dy = 0
+    def __init__(self, camera_func, width, height):
+        self.camera_func = camera_func
+        self.state = pg.Rect(0, 0, width, height)
 
-    # сдвинуть объект obj на смещение камеры
-    def apply(self, obj):
-        obj.rect.x += self.dx
-        obj.rect.y += self.dy
+    def apply(self, target):
+        return target.rect.move(self.state.topleft)
 
-    # позиционировать камеру на объекте target
     def update(self, target):
-        self.dx = -(target.rect.x + target.rect.w // 2 - width // 2)
-        self.dy = -(target.rect.y + target.rect.h // 2 - height // 2)
+        self.state = self.camera_func(self.state, target.rect)
 
 
-camera = Camera()
+def camera_func(camera, target_rect):
+    l = -target_rect.x + 1000
+    t = -target_rect.y + 650
+    w, h = camera.width, camera.height
+
+    return pg.Rect(l, t, w, h)
+
+
+camera = Camera(camera_func, total_level_width, total_level_height)
 
 FPS = 30
-width = 600
-height = 480
+width = 1300
+height = 750
 size = (width, height)
 virtual_surface = Surface(size)
-manager = pygame_gui.UIManager((600, 480))
-screen = pg.display.set_mode(size, RESIZABLE)
+manager = pygame_gui.UIManager((1300, 750))
+screen = pg.display.set_mode(size)
+print(screen.get_rect())
 current_size = screen.get_size()
-img = pg.image.load('fon.png')
-img = transform.scale(img, (600, 480))
+img = pg.image.load('fon2.gif')
+img = transform.scale(img, (1300, 750))
 pg.display.set_caption('SIM')
 switch_start = pygame_gui.elements.UIButton(
     relative_rect=pg.Rect((120, 10), (150, 100)),
@@ -344,7 +377,8 @@ difficulty = pygame_gui.elements.ui_drop_down_menu.UIDropDownMenu(
     relative_rect=pg.Rect((120, 320), (150, 100)),
     manager=manager)
 running_1 = True
-
+save = [[0] * 123 for _ in range(66)]
+print(save)
 screen.blit(img, (0, 0))
 clock = pg.time.Clock()
 while running_1:
@@ -378,11 +412,37 @@ while running_1:
                     running = True
                     player, level_x, level_y = generate_level(load_level('map.txt'))
                     hero = player
+                    portal = Portal(950, 210)
                     while running:
-                        screen.blit(pg.image.load('fon.png'), (0, 0))
+                        screen.blit(img, (0, 0))
                         clock.tick(FPS)
                         for event in pg.event.get():
-                            if event.type == pg.QUIT:
+                            if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
+                                y = 0
+                                while y < level_y:
+                                    y += 1
+                                    x = 0
+                                    lst = []
+                                    for sprite in all_sprites_for_save:
+                                        if sprite.type == '@':
+                                            print(sprite.rect.y // 10)
+                                            save[sprite.rect.y // 10][sprite.rect.x // 10] = '@'
+                                            print(save[34][18])
+
+                                        elif sprite.type == 'p':
+                                            save[sprite.rect.y // 10][sprite.rect.x // 10] = '.'
+
+                                        else:
+                                            if save[sprite.rect.y // 10][sprite.rect.x // 10] != '@':
+                                                save[sprite.rect.y // 10][sprite.rect.x // 10] = sprite.type
+
+                                text = ''
+                                for i in save:
+                                    text += ''.join(i) + '\n'
+                                print(save)
+                                with open('map2.txt', 'w') as f:
+                                    print(text, file=f)
+
                                 running = False
                             if event.type == my_event:
                                 for sprite in fire_enemies:
@@ -421,12 +481,17 @@ while running_1:
                             pg.time.delay(1000)
                             running = False
                         if len(enemies) == 0 and len(fire_enemies) == 0 and len(Fire_enemies) == 0:
-                            w = f.render('YOU WON', True,
-                                         pg.Color('green'))
-                            screen.blit(w, (100, 100))
-                            pg.display.update()
-                            pg.time.delay(1000)
-                            running = False
+                            screen.blit(portal.image, camera.apply(portal))
+                            for sprite in walls_for_battle:
+                                walls_for_battle.remove(sprite)
+                            walls_for_battle.update()
+                            walls_for_battle.draw(screen)
+                            if pg.sprite.spritecollide(portal, heroes, False, False):
+                                w = f.render('WON', True,
+                                             pg.Color('red'))
+                                screen.blit(w, (650, 375))
+                                pg.time.delay(1000)
+                                running = False
                         enemies.update(hero.rect)
 
                         count_hp = f.render(str(hero.hp), True, pg.Color('red'))
@@ -448,14 +513,35 @@ while running_1:
                         camera.update(hero)
                         fire_enemies.update(hero.rect)
                         Fire_enemies.update(hero.rect)
+                        if hero.rect[1] >= 447 and len(enemies) + len(fire_enemies) + len(Fire_enemies) > 0:
+                            walls_for_battle.add(Tile('wall', 79, 41, False))
+                            walls_for_battle.add(Tile('wall', 80, 41, False))
+                            walls_for_battle.add(Tile('wall', 81, 41, False))
+                            walls_for_battle.add(Tile('wall', 82, 41, False))
+                            walls_for_battle.add(Tile('wall', 83, 41, False))
+                            walls_for_battle.add(Tile('wall', 84, 41, False))
+                            walls_for_battle.add(Tile('wall', 85, 41, False))
+                            walls_for_battle.add(Tile('wall', 86, 41, False))
+                            walls_for_battle.add(Tile('wall', 87, 41, False))
+                            walls_for_battle.add(Tile('wall', 88, 41, False))
+                            walls_for_battle.add(Tile('wall', 89, 41, False))
+                            walls_for_battle.add(Tile('wall', 90, 41, False))
+                            walls_for_battle.add(Tile('wall', 91, 41, False))
+                            walls_for_battle.add(Tile('wall', 92, 41, False))
+                            walls_for_battle.add(Tile('wall', 93, 41, False))
+                            walls_for_battle.add(Tile('wall', 94, 41, False))
+                            walls_for_battle.add(Tile('wall', 95, 41, False))
 
                         enemy_bullets.update()
+                        print(hero.rect)
 
                         for hit in pg.sprite.groupcollide(heroes, enemy_bullets, False, True):
                             hit.hp -= 1
                         for sprite in all_sprites:
-                            camera.apply(sprite)
-                        all_sprites.draw(screen)
+                            screen.blit(sprite.image, camera.apply(sprite))
+
+                        for sprite in walls_for_battle:
+                            screen.blit(sprite.image, camera.apply(sprite))
                         pg.display.update()
 
         manager.process_events(event)
