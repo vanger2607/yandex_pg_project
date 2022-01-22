@@ -327,6 +327,7 @@ class FiretoallEnemy(Enemy):
 
 
 class Boss(FiretoallEnemy):
+    """Босс нашей игры, может призывать приспешников"""
     def __init__(self, img, speed, hp, attack, bullet_damage, x, y, can_see):
         super().__init__(img, speed, hp, attack, bullet_damage, x, y, can_see)
         self.type = 'B'
