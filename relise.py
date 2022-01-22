@@ -300,7 +300,7 @@ def main_menu_for():
                     rect=pygame.Rect((250, 200), (300, 200)),
                     manager=manager,
                     window_title='Подтверждение',
-                    action_long_desc='Are you seriously?',
+                    action_long_desc='Are you serious?',
                     action_short_name='Yes',
                     blocking=True)
             elif menu_event.type == VIDEORESIZE:
@@ -317,7 +317,7 @@ def main_menu_for():
                             rect=pygame.Rect((250, 200), (300, 200)),
                             manager=manager,
                             window_title='Подтверждение',
-                            action_long_desc='Are you seriously?',
+                            action_long_desc='Are you serious?',
                             action_short_name='Yes',
                             blocking=True)
                     elif menu_event.ui_element == switch_Settings:
@@ -365,7 +365,7 @@ def esc_menu_for():
                     rect=pygame.Rect((250, 200), (300, 200)),
                     manager=manager,
                     window_title='Подтверждение',
-                    action_long_desc='Are you seriously?',
+                    action_long_desc='Are you serious?',
                     action_short_name='Yes',
                     blocking=True)
             elif menu_event.type == pygame.KEYUP:
