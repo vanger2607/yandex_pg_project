@@ -1,7 +1,6 @@
 from classes_for_game import *
 import pygame as pg
 
-move_to = 'left'
 warnings.filterwarnings('ignore')
 with open('map_for_second_level2.txt', 'r') as f:
     WALLS_AND_TILES_SECOND_LEVEL = []
@@ -12,11 +11,6 @@ pg.init()
 fire_sound = pg.mixer.Sound('odnokratnyiy-piu.mp3')
 summon_event = pg.USEREVENT + 1
 pg.time.set_timer(summon_event, 1080 * 3)
-
-
-def terminate():
-    pg.quit()
-    sys.exit()
 
 
 def load_level(filename):
