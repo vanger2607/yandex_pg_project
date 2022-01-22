@@ -419,6 +419,7 @@ def first_level_for():
         file = f.readlines()
         file = ''.join(file).split('\n')
         hero.hp = int((file[-3]))
+        print(file[-2])
         for num, i in enumerate(enemies_for_save):
             i.hp = int(file[-2].split()[num])
     portal = Portal(950, 210)
@@ -429,8 +430,20 @@ def first_level_for():
         for event in pg.event.get():
             if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 esc = esc_menu_for()
+                print(esc)
                 if esc == 'resume':
                     continue
+                if esc == 'menu':
+                    shutil.copyfile("map.txt", "map1.txt")
+                    for i in all_sprites_for_save:
+                        i.kill()
+                    for i in all_sprites:
+                        i.kill()
+                    for i in enemies_for_save:
+                        i.kill()
+                    flag = False
+                    running = False
+                    break
                 if esc == 'save':
                     saving()
                     flag = False
@@ -582,6 +595,18 @@ def second_level_for():
                 esc = esc_menu_for()
                 if esc == 'resume':
                     continue
+                if esc == 'menu':
+                    shutil.copyfile("map_for_second_level2.txt", "map2.txt")
+                    for i in all_sprites_for_save:
+                        i.kill()
+                    for i in all_sprites:
+                        i.kill()
+                    for i in enemies_for_save:
+                        i.kill()
+                    flag = False
+
+                    running = False
+                    break
                 if esc == 'save':
                     saving(son='map2.txt')
                     flag = False
@@ -824,6 +849,18 @@ def third_level_for():
                 esc = esc_menu_for()
                 if esc == 'resume':
                     continue
+                if esc == 'menu':
+                    shutil.copyfile("map3_start.txt", "map3.txt")
+                    for i in all_sprites_for_save:
+                        i.kill()
+                    for i in all_sprites:
+                        i.kill()
+                    for i in enemies_for_save:
+                        i.kill()
+                    flag = False
+                    running = False
+                    break
+
                 if esc == 'save':
                     saving(son='map3.txt')
                     flag = False
