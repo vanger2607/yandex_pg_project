@@ -12,4 +12,3 @@ from pygame_gui.elements import UIButton, UITextBox
 from pygame_gui.core import ObjectID
 from random import randint
 import warnings
-from classes_for_game import *
