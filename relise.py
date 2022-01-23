@@ -29,7 +29,6 @@ def generate_level(level, can_see_purple=450, can_see_green=370, can_see_boss=10
     """создает уровень"""
     new_player, x, y = None, None, None
     if level_id == 2:
-        print('ok')
         for y in range(len(level)):
             for x in range(len(level[y])):
                 if level[y][x] == '.':
@@ -126,7 +125,7 @@ def level_window():
     manager.clear_and_reset()
     switch_start, switch_exit, switch_Settings, volume, img = None, None, None, None, None
     first_level, second_level, third_level = None, None, None
-    img = pygame.image.load('fon.png')
+    img = pygame.image.load('fon2.gif')
     img = transform.scale(img, size)
     screen.blit(img, (0, 0))
     first_level = pygame_gui.elements.UIButton(
@@ -173,7 +172,7 @@ def settings_render():
     switch_start, switch_exit, switch_Settings, volume, img = None, None, None, None, None
     first_level, second_level, third_level = None, None, None
     pygame.display.set_caption('SIM')
-    img = pygame.image.load('fon.png')
+    img = pygame.image.load('fon2.gif')
     img = transform.scale(img, size)
     screen.blit(img, (0, 0))
     button_layout_rect = pygame.Rect(0, 0, 0, 0)
@@ -317,7 +316,7 @@ def main_menu_for():
                             rect=pygame.Rect((250, 200), (300, 200)),
                             manager=manager,
                             window_title='Подтверждение',
-                            action_long_desc='Are you serious?',
+                            action_long_desc='Are you seriously?',
                             action_short_name='Yes',
                             blocking=True)
                     elif menu_event.ui_element == switch_Settings:
@@ -365,7 +364,7 @@ def esc_menu_for():
                     rect=pygame.Rect((250, 200), (300, 200)),
                     manager=manager,
                     window_title='Подтверждение',
-                    action_long_desc='Are you serious?',
+                    action_long_desc='Are you seriously?',
                     action_short_name='Yes',
                     blocking=True)
             elif menu_event.type == pygame.KEYUP:
@@ -413,7 +412,6 @@ def first_level_for():
         file = f.readlines()
         file = ''.join(file).split('\n')
         hero.hp = int((file[-3]))
-        print(file[-2])
         for num, i in enumerate(enemies_for_save):
             i.hp = int(file[-2].split()[num])
     portal = Portal(950, 210)
@@ -424,7 +422,6 @@ def first_level_for():
         for event in pg.event.get():
             if event.type == pg.QUIT or event.type == pg.KEYDOWN and event.key == pg.K_ESCAPE:
                 esc = esc_menu_for()
-                print(esc)
                 if esc == 'resume':
                     continue
                 if esc == 'menu':
@@ -643,7 +640,6 @@ def second_level_for():
                         pass
                 if i.where == 'up':
                     try:
-                        print((i.rect.y + hero.speed * 2) // 10)
                         if save_for_second_level[(i.rect.y + hero.speed * 2) // 10][i.rect.x // 10] != '#' \
                                 and save_for_second_level[(i.rect.y + hero.speed * 2) // 10 + 1][i.rect.x // 10] != '#' \
                                 and save_for_second_level[(i.rect.y + hero.speed * 2) // 10 + 2][i.rect.x // 10] != '#' \
