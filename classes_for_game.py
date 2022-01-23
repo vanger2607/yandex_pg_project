@@ -1,4 +1,6 @@
 from variables import *
+
+
 class Fon(pg.sprite.Sprite):
     def __init__(self, y, x):
         super().__init__(all_sprites_for_save)
@@ -30,6 +32,7 @@ class Bullet(pg.sprite.Sprite):
         self.rect.y = y
         self.speed = speed
         self.where = where
+
     def update(self, *args):
         if self.where == 'left':
             self.rect.x -= self.speed
@@ -69,7 +72,7 @@ class Hero(pg.sprite.Sprite):
         self.move_to = move_to
         all_sprites.add(self)
 
-    def attacking(self, weapon ):
+    def attacking(self, weapon):
         global bullets
         fire_sound.play()
         where = self.rect.x
@@ -220,6 +223,8 @@ class Enemy(pg.sprite.Sprite):
 
     def dead(self, damage):
         self.hp -= damage
+
+
 class FireEnemy(Enemy):
     """класс для стреляющего врага, который выпускает пули в одном направлении"""
 
@@ -328,12 +333,14 @@ class FiretoallEnemy(Enemy):
 
 class Boss(FiretoallEnemy):
     """Босс нашей игры, может призывать приспешников"""
+
     def __init__(self, img, speed, hp, attack, bullet_damage, x, y, can_see):
         super().__init__(img, speed, hp, attack, bullet_damage, x, y, can_see)
         self.type = 'B'
 
     def summon(self):
         enemies.add(Enemy('mini_gad.png', randint(3, 6), 15, 2, self.rect.x + 20, self.rect.y, self.can_see_y))
+
 
 class Tile(pg.sprite.Sprite):
     """класс клетка - создает стены и пустые клетки для нашего поля"""
@@ -356,6 +363,7 @@ class Tile(pg.sprite.Sprite):
         if self.type1 == 'empty':
             self.type = '.'
             empty.append((self.rect.x, self.rect.y))
+
 
 class Green_gad(Enemy):
     """как обычный враг, только больше"""
@@ -435,6 +443,8 @@ class Green_gad(Enemy):
                 self.rect.top = block.rect.bottom
             for block in strange_walls:
                 self.rect.top = block.rect.bottom
+
+
 class Camera:
     """класс камера - класс создающий видимость присутствия обзора у нашего персонажа
     на самом деле просто перемещает главное окно"""
@@ -448,6 +458,7 @@ class Camera:
 
     def update(self, target):
         self.state = self.camera_func(self.state, target.rect)
+
 
 class menu_window(pygame_gui.elements.ui_window.UIWindow):
     def __init__(self, manager_func: IUIManagerInterface,
@@ -469,7 +480,7 @@ class menu_window(pygame_gui.elements.ui_window.UIWindow):
         button_layout_rect.size = (450, size_1[0] // 10)
         button_layout_rect.center = [size_1[1] // 2, size_1[1] // 2 - 150]
 
-        self.confirmation_text = UITextBox(html_text="<font size=7>       Меню паузы</font>",
+        self.confirmation_text = UITextBox(html_text="<font size=7>   Меню паузы</font>",
                                            relative_rect=pygame.Rect(5, 5, size_1[0] - 45, size_1[0] // 10),
                                            manager=self.ui_manager,
                                            container=self,
