@@ -151,15 +151,15 @@ def main_renderer():
     img = transform.scale(pygame.image.load('SIM.png'), size)
     pygame.display.set_caption('SIM')
     switch_start = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((120, 450), (300, 150)),
+        relative_rect=pygame.Rect((120, 250), (300, 150)),
         text='START',
         manager=manager)
     switch_exit = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((120, 650), (300, 150)),
+        relative_rect=pygame.Rect((120, 450), (300, 150)),
         text='EXIT',
         manager=manager)
     switch_Settings = pygame_gui.elements.UIButton(
-        relative_rect=pygame.Rect((120, 850), (300, 150)),
+        relative_rect=pygame.Rect((120, 650), (300, 150)),
         text='SETTINGS',
         manager=manager)
     screen.blit(img, (0, 0))
@@ -233,14 +233,22 @@ def saving(all_sprites_for_save=all_sprites_for_save,
                     sprite.rect.x += 40
 
                 if sprite.type == '@':
+                    if sprite.rect.y // 10 <= 10:
+                        sprite.rect.y += 10
                     save[sprite.rect.y // 10][sprite.rect.x // 10] = '@'
                 if sprite.type == 'B':
+                    if sprite.rect.y // 10 <= 10:
+                        sprite.rect.y += 10
                     save[sprite.rect.y // 10][sprite.rect.x // 10] = 'B'
                 elif sprite.type == 'e':
+                    if sprite.rect.y // 10 <= 10:
+                        sprite.rect.y += 10
                     save[sprite.rect.y // 10][sprite.rect.x // 10] = 'e'
                 if sprite.type == 'F':
                     save[sprite.rect.y // 10][sprite.rect.x // 10] = 'F'
                 if sprite.type == 'G':
+                    if sprite.rect.y // 10 <= 10:
+                        sprite.rect.y += 10
                     save[sprite.rect.y // 10][sprite.rect.x // 10] = 'G'
                 elif sprite.type == 'p':
                     save[sprite.rect.y // 10][sprite.rect.x // 10] = '.'
